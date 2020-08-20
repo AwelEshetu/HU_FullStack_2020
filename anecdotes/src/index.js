@@ -12,13 +12,13 @@ const App = (props) => {
   }
 
   const handleVote= ()=>{
-     let votesArray=[].concat(votes);
-         votesArray[selected]=votes[selected]+1;
+     let votesArray=[...votes];
+         votesArray[selected] += 1;
      return setVotes (votesArray)
   }
-  //console.log('votes ',votes)
-  //console.log('index ', selected)
-  //console.log(votes[selected])
+  console.log('votes ',votes)
+  console.log('index ', selected)
+  console.log(votes[selected])
  
   return (
     <div>
