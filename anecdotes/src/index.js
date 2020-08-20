@@ -23,7 +23,7 @@ const App = (props) => {
   return (
     <div>
       {props.anecdotes[selected]}
-      <p>{votes[selected] > 0 ? `has ${votes[selected]} ${votes[selected] > 1 ? 'votes' :'vote'}` : null}</p>
+      <p>{`has ${votes[selected]} ${votes[selected] > 1 ? 'votes' :'vote'}` }</p>
       <div style={{display:'inline-block'}}>
       <Button text='vote' handleClick={handleVote} />
       <Button text='next anecdote' handleClick={selectNext} />
