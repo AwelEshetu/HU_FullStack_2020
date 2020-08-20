@@ -2,12 +2,12 @@ import React, { useState } from 'react'
 import ReactDOM from 'react-dom'
 
 const Button = ({text,handleClick}) =><button onClick={handleClick}>{text}</button>;
-const States= ({text,count}) => <p>{text} {count}</p>;
+const Statistic= ({text,count}) => <tbody><tr><td>{text}</td><td>{count}</td></tr></tbody>;
 const Feedback =({text,good,neutral,bad}) =>{
 
  const stat= text==='all' ? `${good-bad}` : text==='average' ? `${(good-bad)/(good+bad+neutral)}` : `${(good / (good+bad+neutral)) * 100 }%`;
 
-  return (<p>{text} {stat} </p>)
+  return (<tbody><tr><td>{text}</td><td>{stat}</td></tr></tbody>)
       
 }
 const App = () => {
@@ -41,19 +41,19 @@ const App = () => {
       <div>
         {
           (good+bad+neutral)===0 ? null : 
-          <>
-          <States text='good' count={good}/>
-          <States text='neutral' count={neutral}/>
-          <States text='bad' count={bad}/>
-          </>
+          <table>
+          <Statistic text='good' count={good}/>
+          <Statistic text='neutral' count={neutral}/>
+          <Statistic text='bad' count={bad}/>
+          </table>
         }
         
         {(good+bad+neutral)===0 ? `No feedback given` :
-        <>
+        <table>
         <Feedback text='all' good={good} neutral={neutral} bad={bad} />
         <Feedback text='average'  good={good} neutral={neutral} bad={bad} />
         <Feedback text='positive'  good={good} neutral={neutral} bad={bad} />
-        </>
+        </table>
        }
         </div>
     </div>
