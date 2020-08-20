@@ -2,34 +2,47 @@ import React, { useState } from 'react'
 import ReactDOM from 'react-dom'
 
 const Button= ({text, handleClick}) => <button onClick={handleClick}> {text}</button>
+const MostSelectedAnecdote = ({anecdote}) => {
+  //console.log('most voted is called with ', anecdote)
+  return (
+    <div>
+      <h1>Anecdote with most votes</h1>
+      {anecdote}
+    </div>
+     
+  )
+}
 const App = (props) => {
   const [selected, setSelected] = useState(0)
   const [votes, setVotes] = useState(new Array(anecdotes.length).fill(0))
-
+  const [mostVoted,setMostVoted] = useState(anecdotes[0])
   const selectNext= ()=>{
      let nextAnecdote= Math.floor(Math.random()*(anecdotes.length));
-     return setSelected(nextAnecdote);
+      setSelected(nextAnecdote);
   }
 
   const handleVote= ()=>{
      let votesArray=[...votes];
          votesArray[selected] += 1;
-     return setVotes (votesArray)
+      setVotes ([...votesArray])
+      setMostVoted(anecdotes[votesArray.findIndex((i)=>i === Math.max(...votesArray))])
   }
-  console.log('votes ',votes)
-  console.log('index ', selected)
-  console.log(votes[selected])
+
+  //console.log('votes ',votes)
+  //console.log('index ', selected)
+  //console.log('most voted ', mostVoted)
  
   return (
     <div>
+      <h1>Anecdote of the day </h1>
       {props.anecdotes[selected]}
       <p>{`has ${votes[selected]} ${votes[selected] > 1 ? 'votes' :'vote'}` }</p>
       <div style={{display:'inline-block'}}>
       <Button text='vote' handleClick={handleVote} />
       <Button text='next anecdote' handleClick={selectNext} />
       </div>
-      
-    </div>
+      <MostSelectedAnecdote anecdote={mostVoted} />
+     </div>
   )
 }
 
