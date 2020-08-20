@@ -16,6 +16,7 @@ const App = (props) => {
   const [selected, setSelected] = useState(0)
   const [votes, setVotes] = useState(new Array(anecdotes.length).fill(0))
   const [mostVoted,setMostVoted] = useState(anecdotes[0])
+  
   const selectNext= ()=>{
      let nextAnecdote= Math.floor(Math.random()*(anecdotes.length));
       setSelected(nextAnecdote);
