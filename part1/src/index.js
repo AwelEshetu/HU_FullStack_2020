@@ -7,7 +7,7 @@ const Feedback =({text,good,neutral,bad}) =>{
 
  const stat= text==='all' ? `${good-bad}` : text==='average' ? `${(good-bad)/(good+bad+neutral)}` : `${(good / (good+bad+neutral)) * 100 }%`;
 
-  return (<p>{text} {(bad+good+neutral) !==0 ? stat : null} </p>)
+  return (<p>{text} {stat} </p>)
       
 }
 const App = () => {
@@ -39,13 +39,23 @@ const App = () => {
       </div> 
       <h1>Statistics</h1>
       <div>
-        <States text='good' count={good}/>
-        <States text='neutral' count={neutral}/>
-        <States text='bad' count={bad}/>
+        {
+          (good+bad+neutral)===0 ? null : 
+          <>
+          <States text='good' count={good}/>
+          <States text='neutral' count={neutral}/>
+          <States text='bad' count={bad}/>
+          </>
+        }
+        
+        {(good+bad+neutral)===0 ? `No feedback given` :
+        <>
         <Feedback text='all' good={good} neutral={neutral} bad={bad} />
         <Feedback text='average'  good={good} neutral={neutral} bad={bad} />
         <Feedback text='positive'  good={good} neutral={neutral} bad={bad} />
-      </div>
+        </>
+       }
+        </div>
     </div>
   )
 }
