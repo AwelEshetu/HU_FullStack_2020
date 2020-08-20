@@ -16,15 +16,9 @@ const App = () => {
   const [neutral, setNeutral] = useState(0)
   const [bad, setBad] = useState(0)
  
-  
-  const handleGood= () => {
-    return setGood(good+1);
-  }
-  const handleNeutral= () => {
-    return setNeutral(neutral+1);
-  }
-  const handleBad= () => {
-    return setBad(bad+1);
+  //function that returns function 
+  const hanldeFeedbackCount = (text) => ()=> {
+    text==='good' ? setGood(good+1) : text==='neutral' ? setNeutral(neutral+1) : setBad(bad+1);
   }
 
   
@@ -33,9 +27,9 @@ const App = () => {
     <div>
       <h1>Give Feedback</h1>
       <div style={{display:'inline-block'}}>
-      <Button text='good' handleClick={handleGood}/>
-      <Button text='neutral' handleClick={handleNeutral}/>
-      <Button text='bad' handleClick={handleBad}/>
+      <Button text='good' handleClick={hanldeFeedbackCount('good')}/>
+      <Button text='neutral' handleClick={hanldeFeedbackCount('neutral')}/>
+      <Button text='bad' handleClick={hanldeFeedbackCount('bad')}/>
       </div> 
       <h1>Statistics</h1>
       <div>
