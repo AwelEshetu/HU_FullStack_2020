@@ -1,6 +1,8 @@
 import React from 'react';
 
 const PersonForm = (props) => {
+  console.log('PersonForm is called ');
+
     return (
         <form onSubmit={props.handleSubmit}>
         <div>

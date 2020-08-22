@@ -1,23 +1,32 @@
-import React, { useState } from 'react'
+import React, { useState ,useEffect} from 'react'
 import Filter from './components/Filter'
 import PersonForm from './components/PersonForm '
 import Persons from './components/Persons'
-
+import axios from 'axios'
 
 const App = () => {
  
-   const [persons, setPersons] = useState([
-        { name: 'Arto Hellas', number: '040-123456' },
-        { name: 'Ada Lovelace', number: '39-44-5323523' },
-        { name: 'Dan Abramov', number: '12-43-234345' },
-        { name: 'Mary Poppendieck', number: '39-23-6423122' }
-      ])
+  const [persons, setPersons] = useState([])
   const [ newName, setNewName ] = useState('')
   const [ newNumber, setNewNumber ] = useState('')
   const [ nameToSearch, setNameToSearch ] = useState('')
-  const [ filteredPersons, setFilteredPersons ] = useState(persons);
+  const [ filteredPersons, setFilteredPersons ] = useState([]);
+ 
+  useEffect (()=>{
+      console.log('effect is run')
+     axios
+     .get('http://localhost:3001/persons')
+     .then(response=>{
+       console.log('response after fetch ', response)
+        setPersons(response.data)
+        setFilteredPersons(response.data)
+     })
+  },[]);
+
+  console.log('render ',persons.length)
 
   const handleSubmit = (event) => {
+      
       event.preventDefault();
       const names= persons.map(person => person.name);
      
@@ -26,10 +35,10 @@ const App = () => {
          alert(`${newName} is already added to phonebook`) 
          
       }else{
+
         setPersons(persons.concat([{name:newName, number:newNumber}]))
         setFilteredPersons(persons.concat([{name:newName, number:newNumber}]))
       }
-
       setNewName('');
       setNewNumber('');
      
@@ -46,7 +55,6 @@ const App = () => {
   }
  
   const handleSearch = (event) =>{
-
       const searchString = event.target.value;
 
       const filteredPersons= persons.filter( person => 
@@ -80,6 +88,7 @@ const App = () => {
       <Persons filteredPersons={filteredPersons} />
     </div>
   )
+
 }
 
 export default App
