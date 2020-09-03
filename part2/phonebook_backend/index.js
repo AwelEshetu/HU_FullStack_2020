@@ -1,9 +1,11 @@
 const express = require('express'),
       morgan = require('morgan'),
+      cors = require('cors'),
       app = express(),
-      PORT = 3001;
+      PORT = process.env.PORT || 3001;
 
 app.use(express.json())
+app.use(cors())
 //configure morgan request body logger
 morgan.token('body', function (req, res) { return JSON.stringify(req.body) });
 //use morgange as tiny formate
