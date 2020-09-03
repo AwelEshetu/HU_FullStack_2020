@@ -4,8 +4,17 @@ const express = require('express'),
       app = express(),
       PORT = process.env.PORT || 3001;
 
-app.use(express.json())
+//corss origin middleware to allow communication between server running on ( port 3001)
+//and client running on ( port 3000)
 app.use(cors())
+
+//json_parser middleware for retriving request body from requests
+// with out the code below body of the request object won't be available
+app.use(express.json())
+
+//server the html of the front_end using static middleware
+app.use(express.static('build'))
+
 //configure morgan request body logger
 morgan.token('body', function (req, res) { return JSON.stringify(req.body) });
 //use morgange as tiny formate
