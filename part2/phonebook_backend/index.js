@@ -1,8 +1,12 @@
+
+require('dotenv').config();
+
 const express = require('express'),
       morgan = require('morgan'),
       cors = require('cors'),
-      app = express(),
-      PORT = process.env.PORT || 3001;
+      Person = require('./models/person'),
+      PORT = process.env.PORT,
+      app = express();
 
 //corss origin middleware to allow communication between server running on ( port 3001)
 //and client running on ( port 3000)
@@ -20,61 +24,30 @@ morgan.token('body', function (req, res) { return JSON.stringify(req.body) });
 //use morgange as tiny formate
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
 
-let persons =  [
-      {
-        "name": "Arto Hellas",
-        "number": "040-123456",
-        "id": 1
-      },
-      {
-        "name": "Ada Lovelace",
-        "number": "39-44-5323523",
-        "id": 2
-      },
-      {
-        "name": "Dan Abramov",
-        "number": "12-43-234345",
-        "id": 3
-      },
-      {
-        "name": "Mary Poppendieck",
-        "number": "39-23-6423122",
-        "id": 4
-      }
-    ]
-
-const generateId = () => {
-        const maxId = persons.length > 0
-          ? Math.max(...persons.map(n => n.id))
-          : 0
-        return maxId + 1
-      }
-
 app.get('/', (req,resp) => {
     resp.send(`<h3>Welcome to Phonebook APIs</h3>`);
 })
 
 app.get('/info', (req,resp) => {
-    resp.send(`<p>Phone book has info for ${persons.length} people </p>
+    Person.find({}).then( persons => {
+        resp.send(`<p>Phone book has info for ${persons.length} people </p>
                <p>${new Date()} </p>`)
+    });
+    
 })
 
 // get recoreds
-
 app.get('/api/persons', (req,resp) => {
-    resp.json(persons)
+    Person.find({}).then( persons => {
+        resp.json(persons)
+    })
+    
 })
 
 app.get('/api/persons/:id', (req,resp) => {
-    const id = Number(req.params.id),
-         person = persons.find(person => person.id===id);
-   if(person){
-    resp.json(person)
-   }else{
-       resp.status(404).json({
-            error : `No person is found with id : ${id}`
-       })
-   }
+    Person.findById(req.params.id).then( person => {
+        resp.json(person)
+    })
     
 })
 
@@ -90,7 +63,6 @@ app.delete('/api/persons/:id', (req,resp) => {
 
 app.post('/api/persons', (req, resp) => {
     const body = req.body;
-          body.id = generateId();
           
     if(!body.name){
         resp.status(400).json({
@@ -100,14 +72,14 @@ app.post('/api/persons', (req, resp) => {
         resp.status(400).json({
             error: 'number missing from the record'
         })
-    }else if (persons.map(person => person.name).includes(body.name)){
-        resp.status(400).json({
-            error :'name must be unique'
-        })
     }else{
-        
-        persons = persons.concat(body)
-        resp.json(persons)
+        const person = new Person({
+                name : body.name,
+                number : body.number
+            }) 
+        person.save().then(savePerson => {
+            resp.json(savePerson)
+        })
     }
 
 })
