@@ -24,6 +24,31 @@ morgan.token('body', function (req, res) { return JSON.stringify(req.body) });
 //use morgange as tiny formate
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
 
+/*-----custome middlewares ----*/
+//middleware to log requests
+const requestLogger = (req,resp,next) =>{
+    console.log('Method:', req.method)
+    console.log('Path:  ', req.path)
+    console.log('Body:  ', req.body)
+    console.log('---')
+    next()
+  }
+//middleware for handling unknow endpoint requests
+const unknownEndpoint = (req, resp) => {
+    resp.status(404).send({ error: 'unknown endpoint' })
+  }
+  
+  //middleware to handle error for malformatted id
+  const errorHandler = (error, request, response, next) => {
+    console.error(error.message)
+  
+    if (error.name === 'CastError') {
+      return response.status(400).send({ error: 'malformatted id' })
+    } 
+  
+    next(error)
+  }
+
 app.get('/', (req,resp) => {
     resp.send(`<h3>Welcome to Phonebook APIs</h3>`);
 })
@@ -44,19 +69,24 @@ app.get('/api/persons', (req,resp) => {
     
 })
 
-app.get('/api/persons/:id', (req,resp) => {
+app.get('/api/persons/:id', (req,resp,next) => {
     Person.findById(req.params.id).then( person => {
-        resp.json(person)
+        if(person){
+            resp.json(person)
+        }else{
+            resp.status(404).end()
+        }     
     })
+    .catch(error => next(error))
     
 })
 
 // delete record
-
-app.delete('/api/persons/:id', (req,resp) => {
-    const id = Number(req.params.id);
-    persons = persons.filter(person => person.id !==id);
-    return resp.status(204).end();
+app.delete('/api/persons/:id', (req,resp,next) => {
+    Person.findByIdAndRemove(req.params.id).then( result =>{
+        resp.status(204).end()
+    })
+    .catch(error => next(error))
 })
 
 //add new record
@@ -65,11 +95,11 @@ app.post('/api/persons', (req, resp) => {
     const body = req.body;
           
     if(!body.name){
-        resp.status(400).json({
+        return resp.status(400).json({
             error: 'name missing from the record'
         })
     }else if(!body.number){
-        resp.status(400).json({
+        return resp.status(400).json({
             error: 'number missing from the record'
         })
     }else{
@@ -83,6 +113,27 @@ app.post('/api/persons', (req, resp) => {
     }
 
 })
+//update numer for existing person
+app.put('/api/persons/:id', (req, resp, next) => {
+    const body = req.body
+  
+    const person = {
+      name: body.name,
+      number: body.number,
+    }
+  
+    Person.findByIdAndUpdate(req.params.id, person, { new: true })
+      .then(updatedPerson => {
+        resp.json(updatedPerson)
+      })
+      .catch(error => next(error))
+  })
+
+//middlewares in use
+app.use(requestLogger)
+app.use(errorHandler)
+app.use(unknownEndpoint)
+
 app.listen(PORT, ( ) => {
     console.log(`express app is running on port ${PORT}`)
 });
