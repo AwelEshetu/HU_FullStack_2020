@@ -26,7 +26,7 @@ app.use(morgan(':method :url :status :res[content-length] - :response-time ms :b
 
 /*-----custome middlewares ----*/
 //middleware to log requests
-const requestLogger = (req,resp,next) =>{
+const requestLogger = (req, resp, next) =>{
     console.log('Method:', req.method)
     console.log('Path:  ', req.path)
     console.log('Body:  ', req.body)
@@ -43,17 +43,19 @@ const unknownEndpoint = (req, resp) => {
     console.error(error.message)
   
     if (error.name === 'CastError') {
-      return response.status(400).send({ error: 'malformatted id' })
-    } 
+      return response.status(400).json({ error: 'malformatted id' })
+    }else if( error.name === 'ValidationError'){
+        return response.status(400).json({error: error.message})
+    }
   
     next(error)
   }
 
-app.get('/', (req,resp) => {
+app.get('/', (req, resp) => {
     resp.send(`<h3>Welcome to Phonebook APIs</h3>`);
 })
 
-app.get('/info', (req,resp) => {
+app.get('/info', (req, resp) => {
     Person.find({}).then( persons => {
         resp.send(`<p>Phone book has info for ${persons.length} people </p>
                <p>${new Date()} </p>`)
@@ -69,7 +71,7 @@ app.get('/api/persons', (req,resp) => {
     
 })
 
-app.get('/api/persons/:id', (req,resp,next) => {
+app.get('/api/persons/:id', (req, resp, next) => {
     Person.findById(req.params.id).then( person => {
         if(person){
             resp.json(person)
@@ -82,7 +84,7 @@ app.get('/api/persons/:id', (req,resp,next) => {
 })
 
 // delete record
-app.delete('/api/persons/:id', (req,resp,next) => {
+app.delete('/api/persons/:id', (req, resp, next) => {
     Person.findByIdAndRemove(req.params.id).then( result =>{
         resp.status(204).end()
     })
@@ -91,26 +93,16 @@ app.delete('/api/persons/:id', (req,resp,next) => {
 
 //add new record
 
-app.post('/api/persons', (req, resp) => {
+app.post('/api/persons', (req, resp, next) => {
     const body = req.body;
-          
-    if(!body.name){
-        return resp.status(400).json({
-            error: 'name missing from the record'
-        })
-    }else if(!body.number){
-        return resp.status(400).json({
-            error: 'number missing from the record'
-        })
-    }else{
         const person = new Person({
                 name : body.name,
                 number : body.number
             }) 
-        person.save().then(savePerson => {
-            resp.json(savePerson)
-        })
-    }
+        person.save()
+        .then(savedPerson =>savedPerson.toJSON())
+        .then(savedAndFormattedPerson => resp.json(savedAndFormattedPerson))
+        .catch(error => next(error))
 
 })
 //update numer for existing person
@@ -122,7 +114,7 @@ app.put('/api/persons/:id', (req, resp, next) => {
       number: body.number,
     }
   
-    Person.findByIdAndUpdate(req.params.id, person, { new: true })
+    Person.findByIdAndUpdate(req.params.id, person, { new: true, runValidators:true, context:'query'})
       .then(updatedPerson => {
         resp.json(updatedPerson)
       })
