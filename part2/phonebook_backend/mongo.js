@@ -1,10 +1,13 @@
 const mongoose = require('mongoose')
 
+// eslint-disable-next-line no-undef
 if (process.argv.length < 3) {
   console.log('Please provide the password as an argument: node mongo.js <password>')
+  // eslint-disable-next-line no-undef
   process.exit(1)
 }
 
+// eslint-disable-next-line no-undef
 const password = process.argv[2]
 //console.log( 'process variables ',process.argv)
 
@@ -20,9 +23,10 @@ const personSchema = new mongoose.Schema({
 
 const Person = mongoose.model('Person', personSchema)
 
+// eslint-disable-next-line no-unused-vars
 const person= new Person({
-  name:"Mary Poppendieck",
-  number :"39-23-6423122"
+  name:'Mary Poppendieck',
+  number :'39-23-6423122'
 })
 
 /*person.save().then(result => {
@@ -31,8 +35,8 @@ const person= new Person({
 })*/
 
 Person.find({}).then(result => {
-    result.forEach(people => {
-      console.log(people)
-    })
-    mongoose.connection.close()
+  result.forEach(people => {
+    console.log(people)
   })
+  mongoose.connection.close()
+})
