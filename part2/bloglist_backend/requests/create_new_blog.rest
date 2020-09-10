@@ -1,0 +1,9 @@
+POST http://localhost:3001/api/blogs
+content-type: application/json
+
+{
+  "title": "Cross platform mobile application development: a comparison study of React Native Vs Flutter",
+  "author": "Awel Eshetu",
+  "url": "https://www.jyu.fi/it/fi/ajankohtaista/pro-gradu-tiedotteet/cross-platform-mobile-application-development-a-comparison-study-of-react-native-vs-flutter",
+  "likes": 25
+}
