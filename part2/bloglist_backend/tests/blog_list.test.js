@@ -1,6 +1,22 @@
-const listHelper= require('../utils/list_helper')
+const supertest = require('supertest')
+const mongoose = require('mongoose')
+//const listHelper = require('../utils/list_helper')
+const helper = require('./test_helper')
+const Blog = require('../models/blog')
+const app = require('../app')
+const api = supertest(app)
 
-describe('dummy ', () => {
+beforeEach(async () => {
+  await Blog.deleteMany({})
+
+  for (let blog of helper.initialBlogs) {
+    let blogObject = new Blog(blog)
+    await blogObject.save()
+  }
+})
+
+
+/*describe('dummy ', () => {
 
   test('dummy should return 1', () => {
     const blogs= []
@@ -10,54 +26,11 @@ describe('dummy ', () => {
   })
 })
 
-const blogs = [
-  {
-    _id: '5a422a851b54a676234d17f7',
-    title: 'React patterns',
-    author: 'Michael Chan',
-    url: 'https://reactpatterns.com/',
-    likes: 7,
-    __v: 0
-  }, { _id: '5a422aa71b54a676234d17f8',
-    title: 'Go To Statement Considered Harmful',
-    author: 'Edsger W. Dijkstra',
-    url: 'http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html',
-    likes: 5,
-    __v: 0
-  }, {
-    _id: '5a422b3a1b54a676234d17f9',
-    title: 'Canonical string reduction',
-    author: 'Edsger W. Dijkstra',
-    url: 'http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html',
-    likes: 12,
-    __v: 0
-  }, {
-    _id: '5a422b891b54a676234d17fa',
-    title: 'First class tests',
-    author: 'Robert C. Martin',
-    url: 'http://blog.cleancoder.com/uncle-bob/2017/05/05/TestDefinitions.htmll',
-    likes: 10,
-    __v: 0
-  }, {
-    _id: '5a422ba71b54a676234d17fb',
-    title: 'TDD harms architecture',
-    author: 'Robert C. Martin',
-    url: 'http://blog.cleancoder.com/uncle-bob/2017/03/03/TDD-Harms-Architecture.html',
-    likes: 0,
-    __v: 0
-  }, {
-    _id: '5a422bc61b54a676234d17fc',
-    title: 'Type wars',
-    author: 'Robert C. Martin',
-    url: 'http://blog.cleancoder.com/uncle-bob/2016/05/01/TypeWars.html',
-    likes: 2,
-    __v: 0
-  }
-]
+
 describe('total likes', () => {
 
   test('when list has many blogs, it should add all blog likes together', () => {
-    const result = listHelper.totalLikes(blogs)
+    const result = listHelper.totalLikes(helper.initialBlogs)
     expect(result).toBe(36)
   })
 })
@@ -65,7 +38,7 @@ describe('total likes', () => {
 describe('favorite blog', () => {
 
   test('when list have many blogs, it should return a blog with most likes', () => {
-    const result = listHelper.favoriteBlog(blogs)
+    const result = listHelper.favoriteBlog(helper.initialBlogs)
     expect(result).toEqual({
       _id: '5a422b3a1b54a676234d17f9',
       title: 'Canonical string reduction',
@@ -80,7 +53,7 @@ describe('favorite blog', () => {
 describe('most blogs', () => {
 
   test('comulate blogs written by author', () => {
-    const result = listHelper.mostBlogs(blogs)
+    const result = listHelper.mostBlogs(helper.initialBlogs)
     expect(result).toEqual({
       author: 'Robert C. Martin',
       blogs: 3
@@ -91,11 +64,95 @@ describe('most blogs', () => {
 describe('most likes', () => {
 
   test('comulated likes for each author', () => {
-    const result = listHelper.mostLikes(blogs)
+    const result = listHelper.mostLikes(helper.initialBlogs)
 
     expect(result).toEqual({
       author: 'Edsger W. Dijkstra',
       likes: 17
     })
   })
+})*/
+
+describe ('blogs', () => {
+  test('blogs are returned as json', async () => {
+    await api
+      .get('/api/blogs')
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+  })
+
+  test('all blogs are returned', async () => {
+    const response = await api.get('/api/blogs')
+
+    expect(response.body).toHaveLength(helper.initialBlogs.length)
+  })
+
+  test('verifies that the unique identifier property of the blog posts is named id',async () => {
+    const blogs = await api.get('/api/blogs')
+
+    for(let blog of blogs.body){
+      expect(blog.id).toBeDefined()
+    }
+
+  })
+
+  test('a valid blog can be added ', async () => {
+    const newBlog = {
+
+      title: 'React patterns suck!',
+      author: 'Michael Chan Wong',
+      url: 'https://reactpatterns.com/',
+      likes: 0,
+
+    }
+
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+
+    const blogsAtEnd = await helper.blogsInDb()
+    expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length + 1)
+    const titles = blogsAtEnd.map(n => n.title)
+    expect(titles).toContain(
+      'React patterns suck!'
+    )
+  })
+
+  test('verifies that if the likes property is missing from the request, it will default to the value 0', async () => {
+    const newBlog = {
+
+      title: 'React patterns are really cool!',
+      author: 'Michael Chan dung',
+      url: 'https://reactpatterns.com/'
+
+    }
+
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+
+    const blogsAtEnd = await helper.blogsInDb()
+    expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length + 1)
+    const savedBlog = blogsAtEnd.filter(n => n.title===newBlog.title)[0]
+    expect(savedBlog.likes).toBe(0)
+  })
+
+  test('verifies that if the title and url properties are missing from the request data, the backend responds to the request with the status code 400 ', async () => {
+    const newBlog = {
+      author: 'Michael Funga',
+    }
+
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(400)
+  })
+})
+
+afterAll(() => {
+  mongoose.connection.close()
 })

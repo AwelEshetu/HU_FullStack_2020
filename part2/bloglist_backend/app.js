@@ -1,5 +1,7 @@
 const config = require('./utils/config')
 const express = require('express')
+//use of express-async-errors hides try catch blocks( catch happens under the hood)
+require('express-async-errors')
 const app = express()
 const cors = require('cors')
 const blogsRouter = require('./controllers/blogs')

@@ -35,6 +35,7 @@ const mostLikes = (blogs) => {
 
   return authors.filter(author => author.likes === Math.max(...authors.map(author => author.likes)))[0]
 }
+
 module.exports = {
   dummy,
   totalLikes,
