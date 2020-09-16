@@ -151,6 +151,48 @@ describe ('blogs', () => {
       .send(newBlog)
       .expect(400)
   })
+
+  test('succeeds with status code 204 if id is valid', async () => {
+    const blogsAtStart = await helper.blogsInDb()
+    const blogToDelete = blogsAtStart[0]
+
+    await api
+      .delete(`/api/blogs/${blogToDelete.id}`)
+      .expect(204)
+
+    const blogsAtEnd = await helper.blogsInDb()
+
+    expect(blogsAtEnd).toHaveLength(
+      helper.initialBlogs.length - 1
+    )
+
+    const titles = blogsAtEnd.map(blog => blog.title)
+
+    expect(titles).not.toContain(blogToDelete.title)
+  })
+
+  test('succeeds in updating a specific blog post', async () => {
+    const blogsAtStart = await helper.blogsInDb()
+    const blogToUpdated = blogsAtStart[0]
+
+    const updatedBlog = {
+      title:blogToUpdated.title,
+      author:blogToUpdated.author,
+      url:blogToUpdated.url,
+      likes:blogToUpdated.likes + 2
+    }
+
+    await api
+      .put(`/api/blogs/${blogToUpdated.id}`)
+      .send(updatedBlog)
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+
+    const blogsAtEnd = await helper.blogsInDb()
+    const blog = blogsAtEnd.find(blog => blog.id===blogToUpdated.id)
+
+    expect(blog.likes).toBe(updatedBlog.likes)
+  })
 })
 
 afterAll(() => {
