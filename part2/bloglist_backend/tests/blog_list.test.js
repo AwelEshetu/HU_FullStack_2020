@@ -5,6 +5,8 @@ const helper = require('./test_helper')
 const Blog = require('../models/blog')
 const app = require('../app')
 const api = supertest(app)
+const bcrypt = require('bcrypt')
+const User = require('../models/user')
 
 beforeEach(async () => {
   await Blog.deleteMany({})
@@ -14,64 +16,6 @@ beforeEach(async () => {
     await blogObject.save()
   }
 })
-
-
-/*describe('dummy ', () => {
-
-  test('dummy should return 1', () => {
-    const blogs= []
-    const result= listHelper.dummy(blogs)
-    expect(result).toBe(1)
-
-  })
-})
-
-
-describe('total likes', () => {
-
-  test('when list has many blogs, it should add all blog likes together', () => {
-    const result = listHelper.totalLikes(helper.initialBlogs)
-    expect(result).toBe(36)
-  })
-})
-
-describe('favorite blog', () => {
-
-  test('when list have many blogs, it should return a blog with most likes', () => {
-    const result = listHelper.favoriteBlog(helper.initialBlogs)
-    expect(result).toEqual({
-      _id: '5a422b3a1b54a676234d17f9',
-      title: 'Canonical string reduction',
-      author: 'Edsger W. Dijkstra',
-      url: 'http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html',
-      likes: 12,
-      __v: 0
-    })
-  })
-})
-
-describe('most blogs', () => {
-
-  test('comulate blogs written by author', () => {
-    const result = listHelper.mostBlogs(helper.initialBlogs)
-    expect(result).toEqual({
-      author: 'Robert C. Martin',
-      blogs: 3
-    })
-  })
-})
-
-describe('most likes', () => {
-
-  test('comulated likes for each author', () => {
-    const result = listHelper.mostLikes(helper.initialBlogs)
-
-    expect(result).toEqual({
-      author: 'Edsger W. Dijkstra',
-      likes: 17
-    })
-  })
-})*/
 
 describe ('blogs', () => {
   test('blogs are returned as json', async () => {
@@ -192,6 +136,60 @@ describe ('blogs', () => {
     const blog = blogsAtEnd.find(blog => blog.id===blogToUpdated.id)
 
     expect(blog.likes).toBe(updatedBlog.likes)
+  })
+})
+
+describe('when there is initially one user in db', () => {
+  beforeEach(async () => {
+    await User.deleteMany({})
+
+    const passwordHash = await bcrypt.hash('secretpassword', 10)
+    const user = new User({ username: 'admin', passwordHash })
+
+    await user.save()
+  })
+
+  test('creation succeeds with a fresh username', async () => {
+    const usersAtStart = await helper.usersInDb()
+
+    const newUser = {
+      username: 'awel',
+      name: 'Awel Eshetu',
+      password: 'password',
+    }
+
+    await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+
+    const usersAtEnd = await helper.usersInDb()
+    expect(usersAtEnd).toHaveLength(usersAtStart.length + 1)
+
+    const usernames = usersAtEnd.map(u => u.username)
+    expect(usernames).toContain(newUser.username)
+  })
+
+  test('creation fails with proper statuscode and message if username already taken', async () => {
+    const usersAtStart = await helper.usersInDb()
+
+    const newUser = {
+      username: 'admin',
+      name: 'Adminstrator',
+      password: 'password',
+    }
+
+    const result = await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(400)
+      .expect('Content-Type', /application\/json/)
+
+    expect(result.body.error).toContain('`username` to be unique')
+
+    const usersAtEnd = await helper.usersInDb()
+    expect(usersAtEnd).toHaveLength(usersAtStart.length)
   })
 })
 

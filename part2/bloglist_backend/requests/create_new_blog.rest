@@ -1,9 +1,10 @@
 POST http://localhost:3001/api/blogs
 content-type: application/json
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWQiOiI1ZjcxOWNhMDhkNjRmNTcwMTQ2YzhlNGEiLCJpYXQiOjE2MDEzNjc5ODV9.xAD54VtzLO_4gmZn5D8GHQGYU3OHbfkItv1RaHIYYiw
 
 {
-  "title": "Cross platform mobile application development: a comparison study of React Native Vs Flutter",
-  "author": "Awel Eshetu",
+  "title": "Cross platform mobile application development: a comparison study of React Native Vs JSBOOM",
+  "author": "Awel TheCool",
   "url": "https://www.jyu.fi/it/fi/ajankohtaista/pro-gradu-tiedotteet/cross-platform-mobile-application-development-a-comparison-study-of-react-native-vs-flutter",
-  "likes": 25
+  "likes": 20
 }
