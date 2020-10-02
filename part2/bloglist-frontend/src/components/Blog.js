@@ -1,6 +1,7 @@
-import React ,{useState} from 'react'
+import React ,{ useState } from 'react'
+import PropTypes from 'prop-types'
 
-const Blog = ({ blog ,handleLikes,handleRemove,ownBlog}) => {
+const Blog = ({ blog ,handleLikes,handleRemove,ownBlog }) => {
   const blogStyle = {
     paddingTop: 10,
     paddingLeft: 2,
@@ -22,24 +23,31 @@ const Blog = ({ blog ,handleLikes,handleRemove,ownBlog}) => {
   const toggleVisibility = () => {
     setVisible(!visible)
   }
-  
+
 
   return (
-   <div style={blogStyle}>
-    {blog.title} {blog.author} <button onClick={()=> toggleVisibility()}>{visible ? 'hide' : 'view'}</button>
-    <div style={{display:`${visible ? "":"none"}`}}>
-   
-          <div>{blog.url}</div>
-          <div>likes {blog.likes}
-            <button onClick={() => handleLikes(blog.id)}>like</button>
-          </div>
-          <div>{blog.user.name}</div>
-          {ownBlog&&<button style={buttonStyle} onClick={() => handleRemove(blog.id)}>remove</button>}
-      
+    <div style={blogStyle}>
+      {blog.title} {blog.author} <button onClick={() => toggleVisibility()}>{visible ? 'hide' : 'view'}</button>
+      <div style={{ display:`${visible ? '':'none'}` }}>
+
+        <div>{blog.url}</div>
+        <div>likes {blog.likes}
+          <button onClick={() => handleLikes(blog.id)}>like</button>
+        </div>
+        <div>{blog.user.name}</div>
+        {ownBlog&&<button style={buttonStyle} onClick={() => handleRemove(blog.id)}>remove</button>}
+
+      </div>
+
     </div>
-    
-  </div>
 
   )}
+
+Blog.propTypes = {
+  blog : PropTypes.object.isRequired,
+  handleLikes : PropTypes.func.isRequired,
+  handleRemove : PropTypes.func.isRequired,
+  ownBlog : PropTypes.bool.isRequired
+}
 
 export default Blog
