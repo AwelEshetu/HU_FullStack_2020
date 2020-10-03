@@ -40,6 +40,7 @@ const BlogForm = ({ addBlog }) => {
           <input
             value={title}
             onChange={handleTitle}
+            id='title'
           /></div>
         <div >author:
           <input

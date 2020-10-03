@@ -1,0 +1,9 @@
+
+POST http://localhost:3001/api/notes
+Content-Type: application/json
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImF3ZWwiLCJpZCI6IjVmNjMzZDgwOWU0ZmZjNTY0OGJkNTRlYyIsImlhdCI6MTYwMDM0MzAwM30.yrR6PYE3vwdAK17B48SZyt_uPjKSXoNJ6M-wOicz6n
+
+{
+    "content": "adding note works only for authorized user!",
+    "important":true
+}

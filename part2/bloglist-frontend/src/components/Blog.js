@@ -2,6 +2,7 @@ import React ,{ useState } from 'react'
 import PropTypes from 'prop-types'
 
 const Blog = ({ blog ,handleLikes,handleRemove,ownBlog }) => {
+
   const blogStyle = {
     paddingTop: 10,
     paddingLeft: 2,
@@ -26,11 +27,12 @@ const Blog = ({ blog ,handleLikes,handleRemove,ownBlog }) => {
 
 
   return (
-    <div style={blogStyle}>
-      {blog.title} {blog.author} <button onClick={() => toggleVisibility()}>{visible ? 'hide' : 'view'}</button>
-      <div style={{ display:`${visible ? '':'none'}` }}>
+    <div style={blogStyle} className="blog">
 
-        <div>{blog.url}</div>
+      {blog.title} {blog.author} <button onClick={() => toggleVisibility()}>{visible ? 'hide' : 'view'}</button>
+      <div style={{ display:`${visible ? '':'none'}` }} className="detail">
+
+        <div> {blog.url}</div>
         <div>likes {blog.likes}
           <button onClick={() => handleLikes(blog.id)}>like</button>
         </div>
