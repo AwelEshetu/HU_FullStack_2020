@@ -17,7 +17,7 @@ const parseArguments = (args: Array<string>): Inputs => {
     throw new Error("Provided values were not numbers!");
   }
 };
-const calculateBmi = (height: number, weight: number): Result => {
+export const calculateBmi = (height: number, weight: number): Result => {
   let bmi;
   if (height === 0) {
     throw new Error("height can't be zero");
