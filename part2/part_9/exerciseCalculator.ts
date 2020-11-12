@@ -1,4 +1,4 @@
-interface Stat {
+export interface Stat {
   periodLength: number;
   trainingDays: number;
   success: boolean;
@@ -7,9 +7,9 @@ interface Stat {
   target: number;
   average: number;
 }
-interface Args {
+export interface Args {
   target: number;
-  dailyHours: Array<number>;
+  daily_exercises: Array<number>;
 }
 
 const getArguments = (args: Array<string>): Args => {
@@ -18,33 +18,34 @@ const getArguments = (args: Array<string>): Args => {
   if (args.slice(2).every((arg) => !isNaN(Number(arg)))) {
     return {
       target: Number(args[2]),
-      dailyHours: args.slice(3).map((arg) => Number(arg)),
+      daily_exercises: args.slice(3).map((arg) => Number(arg)),
     };
   } else {
     throw new Error("Provided values were not numbers!");
   }
 };
 
-const calculateExercises = (
+export const calculateExercises = (
   target: number,
-  dailyHours: Array<number>
+  daily_exercises: Array<number>
 ): Stat => {
   let aver, rate, rateDescrip;
-  if (dailyHours.length > 0) {
-    aver = dailyHours.reduce((a, b) => a + b) / dailyHours.length;
+  if (daily_exercises.length > 0) {
+    aver = daily_exercises.reduce((a, b) => a + b) / daily_exercises.length;
     rate = aver <= target / 2 ? 1 : aver > target / 2 && aver <= target ? 2 : 3;
     rateDescrip =
       rate === 1
         ? "bad, must work harder"
-        : 2
+        : // eslint-disable-next-line no-constant-condition
+        2
         ? "not too bad but could be better"
         : "good , keep it up";
   } else {
     throw new Error("You have not worked out at all!");
   }
   return {
-    periodLength: dailyHours.length,
-    trainingDays: dailyHours.filter((hour) => hour > 0).length,
+    periodLength: daily_exercises.length,
+    trainingDays: daily_exercises.filter((hour) => hour > 0).length,
     success: aver > target,
     rating: rate,
     ratingDescription: rateDescrip,
@@ -54,8 +55,9 @@ const calculateExercises = (
 };
 
 try {
-  const { target, dailyHours } = getArguments(process.argv);
-  console.log(calculateExercises(target, dailyHours));
+  const { target, daily_exercises } = getArguments(process.argv);
+  console.log(calculateExercises(target, daily_exercises));
 } catch (e) {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
   console.log("Something went wrong, error message: ", e.message);
 }

@@ -1,7 +1,8 @@
 import express from "express";
 import { calculateBmi } from "./bmiCalculator";
+import { calculateExercises, Args, Stat } from "./exerciseCalculator";
 const app = express();
-
+app.use(express.json());
 app.get("/hello", (_req, res) => {
   res.send("Hello Full Stack!");
 });
@@ -14,13 +15,25 @@ app.get("/bmi", (req, res) => {
     bmi: calculateBmi(height, weight),
   };
   if (!!height && !!weight && res.statusCode === 200) {
-    res.json(result);
+    res.send(result);
   } else {
-    res.json({
+    res.send({
       error: "malformatted parameters",
     });
   }
 });
+app.post("/exercises", (req, res) => {
+  const body = req.body as Args;
+  const result: Stat = calculateExercises(body.target, body.daily_exercises);
+  if (res.statusCode === 200) {
+    res.send(result);
+  } else {
+    res.send({
+      error: "malformatted parameters",
+    });
+  }
+});
+
 const PORT = 3003;
 
 app.listen(PORT, () => {

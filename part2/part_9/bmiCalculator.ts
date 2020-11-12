@@ -1,5 +1,5 @@
-type Result = string;
-interface Inputs {
+export type Result = string;
+export interface Inputs {
   height: number;
   weight: number;
 }
@@ -47,5 +47,6 @@ try {
   const { height, weight } = parseArguments(process.argv);
   console.log(calculateBmi(height, weight));
 } catch (e) {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
   console.log("Something went wrong, error message: ", e.message);
 }
